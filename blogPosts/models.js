@@ -12,7 +12,7 @@ const blogSchema = mongoose.Schema({
     createdAt: {type: Date, default: Date.now} 
 });
 
-blogSchema.methods.serializae = function() {
+blogSchema.methods.serialize = function() {
     return {
         id: this._id,
         category: this.category,

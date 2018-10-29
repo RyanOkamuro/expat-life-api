@@ -5,6 +5,10 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const passport = require('passport');
+const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
+const { router: usersRouter } = require('./users');
+const { router: blogRouter } = require('./blogPosts')
 
 mongoose.Promise = global.Promise;
 const {PORT, DATABASE_URL} = require('./config');
@@ -22,6 +26,23 @@ app.use(function (req, res, next) {
         return res.send(204);
     }
     next();
+});
+
+app.use(passport.initialize());
+passport.use(localStrategy);
+passport.use(jwtStrategy);
+
+app.use('/api/users/', usersRouter);
+app.use('/api/auth/', authRouter);
+
+const jwtAuth = passport.authenticate('jwt', {session: false});
+
+app.use('/blogPosts/', blogRouter);
+
+app.get('/api/protected', jwtAuth, (req, res) => {
+    return res.json({
+        data: 'blogDetails'
+    });
 });
 
 app.use('*', (req, res) => {
