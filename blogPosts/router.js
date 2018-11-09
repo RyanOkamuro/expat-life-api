@@ -57,4 +57,27 @@ router.post('/', jsonParser, (req, res) => {
         });
 });
 
+router.put('/:id', jsonParser, (req, res) => {
+    if (!(req.params.id && req.body.id === req.body.id)) {
+      const message = (
+        `Request path id (${req.params.id}) and request body id ` +
+        `(${req.body.id}) must match`);
+      console.error(message);
+      return res.status(400).json({message: message});
+    }
+    const toUpdate = {};
+    const updateableFields = ['category', 'featured', 'title', 'caption', 'blogEntry', 'image'];
+    
+    updateableFields.forEach(field => {
+      if (req.body[field]) {
+        toUpdate[field] = req.body[field];
+      }
+    });
+      BlogArticle
+      //for matching criteria with same id, $set operator will update new inputed values one of the updatedable Fields
+      .findByIdAndUpdate(req.params.id, {$set: toUpdate})
+      .then(bloggingEntry => {return res.status(202).json(bloggingEntry)})
+      .catch(err => res.status(500).json({message: 'Internal server error'}));
+  });
+
 module.exports = {router};
