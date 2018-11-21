@@ -12,6 +12,7 @@ const blogSchema = mongoose.Schema({
     createdAt: {type: Date, default: Date.now} 
 });
 
+//This code gives each instance of our blog model a serialize method, which lets us specify how blog entries are represented outside of our application via our API. Things like passwords can be left out of the serialize method so they are inaccessble via our API.
 blogSchema.methods.serialize = function() {
     return {
         id: this._id,

@@ -23,7 +23,7 @@ app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
     if (req.method === 'OPTIONS') {
-        return res.send(204);
+        return res.sendStatus(204);
     }
     next();
 });
@@ -37,6 +37,11 @@ app.use('/api/auth/', authRouter);
 
 const jwtAuth = passport.authenticate('jwt', {session: false});
 
+// when requests come into `/blogPosts`
+// we'll route them to the express
+// router instances we've imported. 
+// these router instances act as modular, mini-express apps.
+
 app.use('/blogPosts/', blogRouter);
 
 app.get('/api/protected', jwtAuth, (req, res) => {
@@ -49,8 +54,14 @@ app.use('*', (req, res) => {
     return res.status(404).json({message: 'Not Found'});
 });
 
+// both runServer and closeServer need to access the same
+// server object, so we declare `server` here, and then when
+// runServer runs, it assigns a value.
 let server;
 
+// this function starts our server and returns a Promise.
+// In our test code, we need a way of asynchronously starting
+// our server, since we'll be dealing with promises there.
 function runServer(db = DATABASE_URL, port = PORT) {
     return new Promise((resolve, reject) => {
         mongoose.connect(db, err => {

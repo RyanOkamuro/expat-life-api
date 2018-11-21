@@ -6,6 +6,11 @@ const passport = require('passport');
 
 const {BlogArticle} = require('./models');
 
+//.find() is a query filter that it will use to match documents. If that function completes successfully, the callback in .then() will run. 
+//we send back a JSON response that contains a subset of the fields from the full document
+//If the query is successful, we return an object with the property bloggingEntry whose value is an array of blog entry objects.
+//Serialization: describes how the object needs to be turned into a JSON string when sent via our REST API.Just because our data looks one way in the database doesn't mean that our API needs to pass along the raw data. Serialize controls what is sent back via our API.     
+//.exec(): model method that accepts query conditions can be executed using exec method, used for fully-fledged promise
 router.get('/', (req, res) => {
     BlogArticle 
         .find({}).exec()
@@ -21,6 +26,8 @@ router.get('/', (req, res) => {
         });
 });
 
+//.find returns an array of documents, .findById returns a single document
+//In the success case, we return a JSON string representing the object produced by the blog article's serialize method.
 router.get('/:id', (req,res) => {
     BlogArticle
         .findById(req.params.id)
@@ -77,6 +84,14 @@ router.put('/:id', jsonParser, (req, res) => {
       //for matching criteria with same id, $set operator will update new inputed values one of the updatedable Fields
       .findByIdAndUpdate(req.params.id, {$set: toUpdate})
       .then(bloggingEntry => {return res.status(202).json(bloggingEntry)})
+    //   .then(bloggingEntry => res.status(204).end())
+      .catch(err => res.status(500).json({message: 'Internal server error'}));
+  });
+
+  router.delete('/:id', (req, res) => {
+    BlogArticle
+      .findByIdAndRemove(req.params.id)
+      .then(() => res.status(204).end())
       .catch(err => res.status(500).json({message: 'Internal server error'}));
   });
 
