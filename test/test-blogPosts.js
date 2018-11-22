@@ -113,7 +113,6 @@ describe('Blog Post Information API resource', function() {
             return chai
                 .request(app)
                 .get('/blogPosts')
-                .set('Authorization', `Bearer ${authToken}`)
                 .then(function(_res) {
                     res = _res;
                     expect(res).to.have.status(200);
@@ -130,7 +129,6 @@ describe('Blog Post Information API resource', function() {
             return chai
                 .request(app)
                 .get('/blogPosts')
-                .set('Authorization', `Bearer ${authToken}`)
                 .then(function(res) {
                     expect(res).to.have.status(200);
                     expect(res).to.be.json;
@@ -162,7 +160,6 @@ describe('Blog Post Information API resource', function() {
                 .request(app)
                 .post('/blogPosts')
                 .send(newBlogPost)
-                .set('Authorization', `Bearer ${authToken}`)
                 .then(function(res) {
                     expect(res).to.have.status(201);
                     expect(res).to.be.json;
@@ -186,5 +183,58 @@ describe('Blog Post Information API resource', function() {
                     expect(bloggingArticle.image).to.equal(newBlogPost.image);
                 });
         });
+    });
+
+    describe('PUT Blog Information', function() {
+        it('should update an existing blog post on PUT', function () {
+            const updateData = {
+                category: 'Travel_Abroad',
+                featured: 'No',
+                title: 'Backpacking',
+                caption: 'What to expect traveling abroad?',
+                blogEntry: 'By backpacking, you realize you really can survive with just a packpack!',
+                image: 'https://github.com/RyanOkamuro/expat-life/blob/feature/landing-page/public/assets/Harbin/Harbin.jpg?raw=true',
+            };
+
+            return BlogArticle 
+                .findOne()
+                .then(function(bloggingArticle){
+                    updateData.id = bloggingArticle.id;
+                    return chai.request(app)
+                        .put(`/blogPosts/${bloggingArticle.id}`)
+                        .send(updateData);
+                })
+                .then(function(res) {
+                    expect(res).to.have.status(202);
+                    return BlogArticle.findById(updateData.id);
+                })
+                .then(function(bloggingArticle) {
+                    expect(bloggingArticle.category).to.equal(updateData.category);
+                    expect(bloggingArticle.featured).to.equal(updateData.featured);
+                    expect(bloggingArticle.title).to.equal(updateData.title);
+                    expect(bloggingArticle.caption).to.equal(updateData.caption);
+                    expect(bloggingArticle.blogEntry).to.equal(updateData.blogEntry);
+                    expect(bloggingArticle.image).to.equal(updateData.image);
+                });
+        });
+    });
+
+    describe('DELETE Blog Information', function() {
+        it('delete blog entry by id', function() {
+            let bloggingEntry;
+            return BlogArticle
+                .findOne()
+                .then(function(_bloggingEntry) {
+                    bloggingEntry = _bloggingEntry;
+                    return chai.request(app).delete(`/blogPosts/${bloggingEntry.id}`);
+                })
+                .then(function(res) {
+                    expect(res).to.have.status(204);
+                    return BlogArticle.findById(bloggingEntry.id);
+                })
+                .then(function(_bloggingEntry) {
+                    expect(_bloggingEntry).to.be.null;
+                });
+        }); 
     });
 });
