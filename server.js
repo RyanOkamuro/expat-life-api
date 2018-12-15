@@ -1,7 +1,6 @@
 'use strict';
 
 require('dotenv').config();
-const bodyParser = require('body-parser');
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
@@ -15,7 +14,7 @@ const {PORT, DATABASE_URL} = require('./config');
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(function (req, res, next) {
@@ -64,7 +63,7 @@ let server;
 // our server, since we'll be dealing with promises there.
 function runServer(db = DATABASE_URL, port = PORT) {
     return new Promise((resolve, reject) => {
-        mongoose.connect(db, err => {
+        mongoose.connect(db, { useNewUrlParser: true }, err => {
             if (err) {
                 return reject(err);
             }
@@ -77,6 +76,7 @@ function runServer(db = DATABASE_URL, port = PORT) {
                     reject(err);
                 });
         });
+        mongoose.set('useCreateIndex', true);
     });
 }
 

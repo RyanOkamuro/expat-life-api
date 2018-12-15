@@ -1,7 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const bodyParser = require('body-parser');
-const jsonParser = bodyParser.json();
 const passport = require('passport');
 
 const {BlogArticle} = require('./models');
@@ -38,7 +36,7 @@ router.get('/:id', (req,res) => {
         });
 });
 
-router.post('/', jsonParser, (req, res) => {
+router.post('/', (req, res) => {
     const requiredFields = ['category', 'featured', 'title', 'caption', 'blogEntry', 'image'];
     for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
@@ -64,7 +62,7 @@ router.post('/', jsonParser, (req, res) => {
         });
 });
 
-router.put('/:id', jsonParser, (req, res) => {
+router.put('/:id', (req, res) => {
     if (!(req.params.id && req.body.id === req.body.id)) {
       const message = (
         `Request path id (${req.params.id}) and request body id ` +
