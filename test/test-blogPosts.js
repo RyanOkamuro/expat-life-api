@@ -5,15 +5,12 @@ const chai = require('chai');
 
 const chaiHttp = require('chai-http');
 const mongoose = require('mongoose');
-const {User} = require('../users/models');
 const {BlogArticle} = require('../blogPosts/models');
 const {app, runServer, closeServer} = require('../server');
 const {TEST_DATABASE_URL} = require('../config');
 const expect = chai.expect;
 
 chai.use(chaiHttp);
-
-let authToken;
 
 function seedBlogData() {
     console.info('seeding blog info');
@@ -22,11 +19,7 @@ function seedBlogData() {
     for (let i=1; i<=4; i++) {
         seedData.push(generateBlogData());
     }
-    return BlogArticle.insertMany(seedData)
-        .then(() => {
-            return User.insertMany([{username: 'newuser', firstName: 'john', lastName: 'smith', password: '$2a$10$e0MH4k7wVdhPJYcrByPL7OeYj85xu7o0/kU183JYqUsWni7HtT7Dy'}])
-                .then(() => loginUser());
-        });
+    return BlogArticle.insertMany(seedData);
 }
 
 let randomBlogPost = 0;
@@ -76,17 +69,6 @@ function generateBlogData() {
 function tearDownDb() {
     console.warn('Delete database');
     return mongoose.connection.dropDatabase();
-}
-
-function loginUser() {
-    return chai
-        .request(app)
-        .post('/api/auth/login')
-        .send({username: 'newuser', password: 'demopassword'})
-        .then(function(_res) {
-            authToken = _res.body.authToken;
-            return false;
-        });
 }
 
 describe('Blog Post Information API resource', function() {
