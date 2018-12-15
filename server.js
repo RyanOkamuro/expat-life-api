@@ -4,9 +4,6 @@ require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const passport = require('passport');
-const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
-const { router: usersRouter } = require('./users');
 const { router: blogRouter } = require('./blogPosts')
 
 mongoose.Promise = global.Promise;
@@ -27,27 +24,12 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use(passport.initialize());
-passport.use(localStrategy);
-passport.use(jwtStrategy);
-
-app.use('/api/users/', usersRouter);
-app.use('/api/auth/', authRouter);
-
-const jwtAuth = passport.authenticate('jwt', {session: false});
-
 // when requests come into `/blogPosts`
 // we'll route them to the express
 // router instances we've imported. 
 // these router instances act as modular, mini-express apps.
 
 app.use('/blogPosts/', blogRouter);
-
-app.get('/api/protected', jwtAuth, (req, res) => {
-    return res.json({
-        data: 'blogDetails'
-    });
-});
 
 app.use('*', (req, res) => {
     return res.status(404).json({message: 'Not Found'});
