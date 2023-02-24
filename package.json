@@ -1,6 +1,9 @@
 {
   "name": "expat-life-api",
   "version": "1.0.0",
+  "engines": {
+    "node": "12.13.0"
+  },
   "description": "expat-life-api",
   "main": "index.js",
   "dependencies": {
@@ -25,6 +28,8 @@
   },
   "scripts": {
     "start": "node server.js",
+    "server": "nodemon server.js",
+    "client": "npm start --prefix client",
     "test": "mocha --exit --timeout 5000"
   },
   "repository": {
